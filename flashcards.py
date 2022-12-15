@@ -12,20 +12,22 @@ class Card:
         return self._back
 
     def set_front(self):
-        # front = input("Card:\n")
-        print("Card:")
-        front = "2 + 2"
-        print(front)
+        front = input("Card: ")
         self._front = front
 
     def set_back(self):
-        # back = input("Definition:\n")
-        print("Definition:")
-        back = "4"
-        print(back)
+        back = input("Definition: ")
         self._back = back
+
+    def get_answer(self):
+        answer = input("Answer: ")
+        if self.back == answer:
+            print("right")
+        else:
+            print("wrong")
 
 
 c = Card()
 c.set_front()
 c.set_back()
+c.get_answer()
