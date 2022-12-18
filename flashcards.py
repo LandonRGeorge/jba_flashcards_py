@@ -3,44 +3,56 @@ import typing
 
 class Card:
     def __init__(self):
-        self._front = None
-        self._back = None
+        self.front = None
+        self.back = None
 
-    @property
-    def front(self):
-        return self._front
-
-    @property
-    def back(self):
-        return self._back
-
-    @front.setter
-    def front(self, value):
-        self._front = value
-
-    @back.setter
-    def back(self, value):
-        self._back = value
+    def __repr__(self):
+        return self.front
 
 
-while True:
-    nbr_cards = input("Input the number of cards:\n")
-    try:
-        nbr_cards = int(nbr_cards)
-    except ValueError:
-        continue
-    break
+class Cards:
+    def __init__(self):
+        self.fronts: typing.Dict[str, Card] = {}
+        self.backs: typing.Dict[str, Card] = {}
+        self._gather()
 
-cards: typing.List[Card] = []
-for i in range(1, nbr_cards + 1):
-    card = Card()
-    card.front = input(f"The term for card #{i}:\n")
-    card.back = input(f"The definition for card #{i}:\n")
-    cards.append(card)
+    def _gather(self):
+        nbr = int(input("Input the number of cards:\n"))
+        self.list = [Card() for _ in range(nbr)]
+        for _i, card in enumerate(self.list):
+            i = _i + 1
+            front = input(f"The term for card #{i}:\n")
+            while True:
+                if front in self.fronts:
+                    front = input(f'The term "{front}" already exists. Try again:\n')
+                    continue
+                break
+            card.front = front
+            self.fronts[front] = card
+            back = input(f"The definition for card #{i}:\n")
+            while True:
+                if back in self.backs:
+                    back = input(f'The definition "{back}" already exists. Try again:\n')
+                    continue
+                break
+            card.back = back
+            self.backs[back] = card
 
-for card in cards:
-    back = input(f'Print the definition of "{card.front}":\n')
-    if back == card.back:
-        print("Correct!")
-    else:
-        print(f'Wrong. The right answer is "{card.back}"')
+    def ask(self):
+        for card in self.list:
+            back = input(f'Print the definition of "{card.front}":\n')
+            if back == card.back:
+                print("Correct!")
+                continue
+            existing_back = self.backs.get(back, None)
+            if existing_back:
+                print(
+                    f'Wrong. The right answer is "{card.back}", but your definition is correct for "{existing_back.front}".')
+                continue
+            else:
+                print(f'Wrong. The right answer is "{card.back}"')
+
+
+if __name__ == "__main__":
+    cards = Cards()
+    cards.ask()
