@@ -1,3 +1,4 @@
+import argparse
 import random
 import typing
 import io
@@ -43,8 +44,8 @@ class Cards:
         actions = {
             "add": self.add,
             "remove": self.remove,
-            "import": self._import,
-            "export": self.export,
+            "import": self.import_file,
+            "export": self.export_file,
             "ask": self.ask,
             "exit": self.exit,
             "log": self.log,
@@ -73,7 +74,8 @@ class Cards:
             print_and_log(
                 f"The hardest card is \"{max_wrong_count_cards[0].front}\". You have {max_wrong_count} errors answering it.")
             return
-        cards_text = " ".join([f'"{card.front}", ' for card in max_wrong_count_cards])
+        cards_text = ['"' + card.front + '"' for card in max_wrong_count_cards]
+        cards_text = ", ".join(cards_text)
         print_and_log(f"The hardest cards are {cards_text}. You have {max_wrong_count} errors answering them.")
 
     def reset_stats(self):
@@ -136,9 +138,9 @@ class Cards:
         self.list.remove(card)
         print_and_log("The card has been removed.")
 
-    def _import(self):
+    def import_file(self, filepath=None):
         self.list = []
-        filepath = input_and_log("File name:\n")
+        filepath = filepath if filepath else input_and_log("File name:\n")
         try:
             with open(filepath) as f:
                 for line in f:
@@ -146,24 +148,35 @@ class Cards:
                     card = Card(front, back)
                     card.wrong_count = int(wrong_count)
                     self.list.append(card)
+                    self.fronts[front] = card
+                    self.backs[back] = card
         except FileNotFoundError:
             print_and_log("File not found.")
         else:
             print_and_log(f"{len(self.list)} cards have been loaded.")
 
-    def export(self):
-        filepath = input_and_log("File name:\n")
+    def export_file(self, filepath=None):
+        filepath = filepath if filepath else input_and_log("File name:\n")
         with open(filepath, "w") as f:
             for card in self.list:
                 f.write(card.front + "|" + card.back + "|" + str(card.wrong_count) + "\n")
         print_and_log(f"{len(self.list)} cards have been saved.")
 
     def exit(self):
+        if args.export_to:
+            self.export_file(args.export_to)
         print_and_log("Bye bye!")
         sys.exit()
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--import_from")
+    parser.add_argument("--export_to")
+    args = parser.parse_args()
+
     cards = Cards()
+    if args.import_from:
+        cards.import_file(args.import_from)
     while True:
         cards.run()
